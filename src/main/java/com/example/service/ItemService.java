@@ -1,5 +1,6 @@
 package com.example.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +25,10 @@ public class ItemService {
         return this.itemRepository.findAll();
     }
     
+    public List<Item> findByDeletedAtIsNull() {
+    	return this.itemRepository.findByDeletedAtIsNull();
+    }
+    
     // データ保存用のメソッドです
     public Item save(ItemForm itemForm) {
     	Item item = new Item();
@@ -33,7 +38,7 @@ public class ItemService {
     }
     
     public Item findById(Integer id) {
-    	Optional<Item>optionalItem = this.itemRepository.findById(id);
+    	Optional<Item>optionalItem = this.itemRepository.findByIdAndDeletedAtIsNull(id);
     	Item item = optionalItem.get();
     	return item;
     }
@@ -47,7 +52,9 @@ public class ItemService {
     }
     
     // データ削除用のメソッドです
-    public void delete(Integer id) {
-    	this.itemRepository.deleteById(id);
+    public Item delete(Integer id) {
+    	Item item = this.findById(id);
+    	item.setDeletedAt(LocalDateTime.now());
+    	return this.itemRepository.save(item);
     }
 }
